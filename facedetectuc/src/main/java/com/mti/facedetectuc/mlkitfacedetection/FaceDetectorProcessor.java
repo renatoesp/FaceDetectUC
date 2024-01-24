@@ -85,10 +85,9 @@ public class FaceDetectorProcessor extends VisionProcessorBase<List<Face>> {
   @androidx.camera.core.ExperimentalGetImage
   @Override
   protected void onSuccess(@NonNull List<Face> faces, @NonNull GraphicOverlay graphicOverlay) {
-    for (Face face : faces) {
-      graphicOverlay.add(new FaceGraphic(graphicOverlay, face,sharedPreferencesMain,animationControllerMain));
-
-    }
+//    for (Face face : faces) {
+ //     graphicOverlay.add(new FaceGraphic(graphicOverlay, face,sharedPreferencesMain,animationControllerMain));
+ //   }
     int faceCount = faces.size();
     Log.d(TAG, "faceCount:"+faceCount);
     if (faceDetectionListener != null) {

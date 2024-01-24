@@ -60,30 +60,7 @@ public class FaceGraphic extends Graphic {
     animationControllerMain = animationController;
     sharedPreferencesMain = sharedPreferences;
     editor = sharedPreferencesMain.edit();
-/*
-    isEyesClosed = getValue("isEyesClosed",false);
-    Log.d(PREFS_NAME, "isEyesClosed:"+isEyesClosed);
-    if (!isEyesClosed) {
-      if (face.getLeftEyeOpenProbability() != null && face.getRightEyeOpenProbability() != null) {
-        if (face.getLeftEyeOpenProbability() < 0.04 && face.getRightEyeOpenProbability() < 0.04) {
-          isEyesClosed = true;
-        } else {
-          isEyesClosed = false;
-        }
-      }
-      Log.d(PREFS_NAME, "1 isEyesClosed:"+isEyesClosed);
 
-      setValue("isEyesClosed", isEyesClosed);
-    }
-    else{
-//      animationControllerMain.setAnimationFile("loading.json");
-//      animationControllerMain.playAnimation();
-      if (face.getLeftEyeOpenProbability() > 0.04 && face.getRightEyeOpenProbability() > 0.04) {
-        Log.d(PREFS_NAME, "FaceGraphic FaceReady: true");
-        setValue("FaceReady", true);
-      }
-    }
-*/
     final int selectedColor = Color.WHITE;
 
     facePositionPaint = new Paint();

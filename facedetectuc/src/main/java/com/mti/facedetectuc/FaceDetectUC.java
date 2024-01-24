@@ -96,6 +96,8 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
         animationView = findViewById(R.id.lottieAnimationView);
         animationController = new LottieAnimationController(animationView);
 
+        ImageView imageView = findViewById(R.id.frameOverlay);
+
         startCaptureButton = findViewById(R.id.startCaptureButton);
         startCaptureButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -175,17 +177,8 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
             @Override
             public void onFacesDetected(int faceCount) {
 
-                ImageView imageView = findViewById(R.id.frameOverlay);
-
-                if (faceCount == 1) {
-                    startCaptureButton.setVisibility(View.VISIBLE);
-                    imageView.setVisibility(View.VISIBLE);
-                } else {
-                    startCaptureButton.setVisibility(View.INVISIBLE);
-                    imageView.setVisibility(View.INVISIBLE);
-                    if (faceCount > 1) {
-                        Toast.makeText(getContext(), "Somente uma face deve ser capturada", Toast.LENGTH_SHORT).show();
-                    }
+                if (faceCount > 1) {
+                    Toast.makeText(getContext(), "Somente uma face deve ser capturada", Toast.LENGTH_SHORT).show();
                 }
             }
         });
