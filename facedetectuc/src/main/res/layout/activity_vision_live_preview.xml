@@ -7,10 +7,15 @@
     android:keepScreenOn="true">
 
   <ImageView
-      android:id="@+id/imageViewProcessed"
+      android:id="@+id/frameOverlay"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:scaleType="fitCenter" />
+      android:src="@drawable/moldura_face"
+      app:layout_constraintTop_toTopOf="@id/preview_view"
+      app:layout_constraintBottom_toBottomOf="@id/preview_view"
+      app:layout_constraintStart_toStartOf="@id/preview_view"
+      app:layout_constraintEnd_toEndOf="@id/preview_view"/>
+
 
   <com.mti.facedetectuc.mlkitfacedetection.CameraSourcePreview
       android:id="@+id/preview_view"
@@ -40,20 +45,24 @@
 
   <Button
       android:id="@+id/startCaptureButton"
-      android:layout_width="wrap_content"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:text="Iniciar Captura"
+      android:textColor="#FFFFFF"
+      android:background="#192F78"
+      app:layout_constraintWidth_percent="0.5"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintVertical_bias="0.9"/>
+      android:layout_marginBottom="20dp"/>
+
 
   <ImageButton
       android:id="@+id/toggleCamera"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:background="@android:color/transparent"
-      android:src="@drawable/round_flip_camera_android_24"
+      android:src="@drawable/round_flip_camera_android_48"
       app:layout_constraintTop_toTopOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       android:layout_marginTop="16dp"

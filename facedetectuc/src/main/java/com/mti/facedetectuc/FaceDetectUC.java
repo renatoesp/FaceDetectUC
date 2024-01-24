@@ -10,16 +10,20 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
-
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
 import com.airbnb.lottie.LottieAnimationView;
 import com.genexus.android.core.base.controls.IGxControlRuntime;
 import com.genexus.android.core.base.metadata.ActionDefinition;
@@ -31,11 +35,8 @@ import com.genexus.android.core.ui.Coordinator;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
-
-import com.google.mlkit.vision.common.InputImage;
 import com.mti.R;
 import com.mti.facedetectuc.mlkitfacedetection.GraphicOverlay;
 import com.mti.facedetectuc.mlkitfacedetection.CameraSourcePreview;
@@ -70,7 +71,12 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
     private final SharedPreferences sharedPreferences;
     private final LottieAnimationView animationView;
     private final LottieAnimationController animationController;
-
+    private Button startCaptureButton;
+    private final SharedPreferences.Editor editor;
+    private Handler handler = new Handler();
+    private long lastSavedTime = 0;
+    private static final long SAVE_INTERVAL = 500; // Intervalo de 0.5 segundo
+    private Bitmap lastBitmap;
     public FaceDetectUC(Context context, Coordinator coordinator, LayoutItemDefinition definition) {
         super(context);
         mCoordinator = coordinator;
@@ -83,13 +89,28 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
         mactivity = mCoordinator.getUIContext().getActivity();
 
         sharedPreferences = mContext.getSharedPreferences(FACE_DETECTION, mContext.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor = sharedPreferences.edit();
         editor.clear();
         editor.apply();
 
         animationView = findViewById(R.id.lottieAnimationView);
         animationController = new LottieAnimationController(animationView);
 
+        startCaptureButton = findViewById(R.id.startCaptureButton);
+        startCaptureButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                iniciarCaptura();
+            }
+        });
+
+        ImageButton toggleCameraButton = findViewById(R.id.toggleCamera);
+        toggleCameraButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleCamera();
+            }
+        });
 
         preview = findViewById(R.id.preview_view);
         if (preview == null) {
@@ -110,7 +131,17 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
 
     }
 
-
+    private void iniciarCaptura(){
+        setValue("FaceReady", true);
+    }
+    private void toggleCamera() {
+        if (cameraSource != null) {
+            int facing = cameraSource.getCameraFacing();
+            cameraSource.setFacing(facing == CameraSource.CAMERA_FACING_FRONT ? CameraSource.CAMERA_FACING_BACK : CameraSource.CAMERA_FACING_FRONT);
+            preview.stop();
+            startCameraSource();
+        }
+    }
     private void requestCameraPermission() {
         Log.w(NAME, "Camera permission is not granted. Requesting permission");
 
@@ -139,6 +170,26 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
         Log.i(NAME, "Using Face Detector Processor");
 
         faceDetectorProcessor = new FaceDetectorProcessor(mContext, sharedPreferences, animationController);
+
+        faceDetectorProcessor.setFaceDetectionListener(new FaceDetectorProcessor.FaceDetectionListener() {
+            @Override
+            public void onFacesDetected(int faceCount) {
+
+                ImageView imageView = findViewById(R.id.frameOverlay);
+
+                if (faceCount == 1) {
+                    startCaptureButton.setVisibility(View.VISIBLE);
+                    imageView.setVisibility(View.VISIBLE);
+                } else {
+                    startCaptureButton.setVisibility(View.INVISIBLE);
+                    imageView.setVisibility(View.INVISIBLE);
+                    if (faceCount > 1) {
+                        Toast.makeText(getContext(), "Somente uma face deve ser capturada", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
         faceDetectorProcessor.setImageProcessingListener(new FaceDetectorProcessor.ImageProcessingListener() {
             @Override
             public void onImageProcessed(Bitmap bitmap) {
@@ -146,36 +197,50 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
 
 
                 if (bitmap != null) {
-
-//                    Log.d(NAME, "FaceDetectUC bitmap != null");
-//                    ImageView imageView = findViewById(R.id.imageViewProcessed);
- //                   imageView.setImageBitmap(bitmap);
-
-  //              } else {
-                    File appDirectory = mContext.getApplicationContext().getFilesDir();
-                    File savedImageFile = saveImageFromBitmap(bitmap, appDirectory);
-                    if (savedImageFile != null) {
-                        String imagePath = savedImageFile.getAbsolutePath();
-                        Log.d(NAME, "FaceDetectUC imagePath:" + imagePath);
-                        runOnTapEvent(imagePath);
+                    long currentTime = System.currentTimeMillis();
+                    if (currentTime - lastSavedTime >= SAVE_INTERVAL) {
+                        lastSavedTime = currentTime;
+                        saveImage(bitmap); // Método para salvar a imagem
+                    } else {
+                        lastBitmap = bitmap; // Armazena a última imagem recebida
                     }
+
+                    // Agendar a próxima verificação
+                    handler.postDelayed(() -> {
+                        if (lastBitmap != null && System.currentTimeMillis() - lastSavedTime >= SAVE_INTERVAL) {
+                            lastSavedTime = System.currentTimeMillis();
+                            saveImage(lastBitmap);
+                            lastBitmap = null;
+                        }
+                    }, SAVE_INTERVAL - (currentTime - lastSavedTime));
                 }
+
             }
         });
 
         cameraSource.setMachineLearningFrameProcessor(faceDetectorProcessor);
     }
 
+    private void saveImage(Bitmap bitmap) {
+        File appDirectory = mContext.getApplicationContext().getFilesDir();
+        File savedImageFile = saveImageFromBitmap(bitmap, appDirectory);
+        if (savedImageFile != null) {
+            String imagePath = savedImageFile.getAbsolutePath();
+            Log.d(NAME, "FaceDetectUC imagePath:" + imagePath);
+            runOnTapEvent(imagePath);
+        }
+    }
+
     private File saveImageFromBitmap(@NonNull Bitmap bitmap, @NonNull File directory) {
         FileOutputStream fos = null;
         try {
             String  uniqueID = UUID.randomUUID().toString();
+            String namefinalImage = "img_" + uniqueID + ".png";
             ContextWrapper cw = new ContextWrapper(mactivity.getApplicationContext());
-//            File directoryFile = cw.getDir("imageDir", Context.MODE_PRIVATE);
-            File savedImageFile = new File(directory, uniqueID + ".jpg");
+            File savedImageFile = new File(directory,namefinalImage );
 
             fos = new FileOutputStream(savedImageFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             return savedImageFile;
         } catch (IOException e) {
             e.printStackTrace();
@@ -191,28 +256,6 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
         }
     }
 
-
-    private File saveImageFromInputImage(InputImage image, File directory) {
-        try {
-            ByteBuffer buffer = image.getByteBuffer();
-            byte[] data = new byte[buffer.remaining()];
-            buffer.get(data);
-
-            String  uniqueID = UUID.randomUUID().toString();
-            ContextWrapper cw = new ContextWrapper(mactivity.getApplicationContext());
-            File directoryFile = cw.getDir("imageDir", Context.MODE_PRIVATE);
-            File imageFile = new File(directoryFile, uniqueID + ".jpg");
-
-            FileOutputStream fos = new FileOutputStream(imageFile);
-            fos.write(data);
-            fos.close();
-
-            return imageFile;
-        } catch (IOException e) {
-            Log.e(TAG, "Erro ao salvar a imagem: " + e.getMessage());
-            return null;
-        }
-    }
     private void startCameraSource() {
         if (cameraSource != null) {
             try {
@@ -256,7 +299,7 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
     }
 
     public void runOnTapEvent(String imagePath) {
-        Log.d(NAME,"runOnTapEvent");
+        Log.d(NAME,"runOnTapEvent - imagePath:"+imagePath);
         ActionDefinition actionDef = mCoordinator.getControlEventHandler(this, EVENT_ON_TAP);
         for (ActionParameter param : actionDef.getEventParameters()) {
             String paramName = param.getValueDefinition().getName();
@@ -318,13 +361,23 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
         return null;
     }
 
+    public void setValue(String key, boolean value) {
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
+    public void setValue(String key, String value) {
+        editor.putString(key, value);
+        editor.apply();
+    }
     @Override
     public Expression.Value callMethod(String name, List<Expression.Value> parameters) {
         if (METHOD_START_CAMERA.equals(name)) {
             Log.d(NAME, "METHOD_START_CAMERA");
             // read parameters from the intent used to launch the activity.
-            int qtdImages = Integer.parseInt(getDefinitionProperty("qtdImages"));
-            Log.d(NAME, "qtdImages:"+qtdImages);
+//            int qtdImages = Integer.parseInt(getDefinitionProperty("qtdImages"));
+            String qtdImagesString = getDefinitionProperty("qtdImages");
+            setValue("qtdImages", qtdImagesString);
+            Log.d(NAME, "qtdImages:"+qtdImagesString);
 
             createCameraSource();
             startCameraSource();

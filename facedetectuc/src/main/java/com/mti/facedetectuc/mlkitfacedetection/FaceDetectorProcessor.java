@@ -16,7 +16,7 @@ import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 import com.google.mlkit.vision.face.FaceLandmark;
 import com.mti.facedetectuc.LottieAnimationController;
-
+import com.mti.facedetectuc.FaceDetectUC;
 import java.util.List;
 import java.util.Locale;
 
@@ -30,20 +30,27 @@ public class FaceDetectorProcessor extends VisionProcessorBase<List<Face>> {
   private final SharedPreferences.Editor editor;
   private final LottieAnimationController animationControllerMain;
   private boolean isFaceReady;
-
-
   private ImageProcessingListener imageProcessingListener;
+
+  private FaceDetectionListener faceDetectionListener;
+
+
+
   public FaceDetectorProcessor(Context context, SharedPreferences sharedPreferences, LottieAnimationController animationController) {
     super(context);
+
     sharedPreferencesMain = sharedPreferences;
     editor = sharedPreferencesMain.edit();
     animationControllerMain = animationController;
     FaceDetectorOptions faceDetectorOptions = PreferenceUtils.getFaceDetectorOptions(context);
     Log.v(MANUAL_TESTING_LOG, "Face detector options: " + faceDetectorOptions);
     detector = FaceDetection.getClient(faceDetectorOptions);
+
   }
 
-
+  public void setFaceDetectionListener(FaceDetectionListener listener) {
+    this.faceDetectionListener = listener;
+  }
   public void setImageProcessingListener(ImageProcessingListener listener) {
     this.imageProcessingListener = listener;
   }
@@ -58,87 +65,34 @@ public class FaceDetectorProcessor extends VisionProcessorBase<List<Face>> {
   protected Task<List<Face>> detectInImage(InputImage image, Bitmap bitmap) {
 
     isFaceReady = getValue("FaceReady",false);
-
+//    int qtdImages = Integer.parseInt(getValue("qtdImages","4"));
+    Log.d(TAG, "detectInImage - FaceDetectorProcessor - isFaceReady:"+isFaceReady);
     if (isFaceReady){
-      Log.d(TAG, "detectInImage - FaceDetectorProcessor - isFaceReady:"+isFaceReady);
-
       if (imageProcessingListener != null) {
         Log.d(TAG, "detectInImage - FaceDetectorProcessor - imageProcessingListener != null");
-        imageProcessingListener.onImageProcessed(bitmap);
+  //      if (qtdImages > 0){
+   //       String name_image = "imagem" + qtdImages;
+   //       int qtdImagesNow = qtdImages - 1;
+  //        String qtdImagesNowStr = String.valueOf(qtdImagesNow);
+   //       setValue("qtdImages", qtdImagesNowStr);
+          imageProcessingListener.onImageProcessed(bitmap);
+   //     }
+
       }
     }
     return detector.process(image);
   }
-
+  @androidx.camera.core.ExperimentalGetImage
   @Override
   protected void onSuccess(@NonNull List<Face> faces, @NonNull GraphicOverlay graphicOverlay) {
     for (Face face : faces) {
       graphicOverlay.add(new FaceGraphic(graphicOverlay, face,sharedPreferencesMain,animationControllerMain));
 
-//      logExtrasForTesting(face);
     }
-  }
-
-  private static void logExtrasForTesting(Face face) {
-    if (face != null) {
-      Log.v(MANUAL_TESTING_LOG, "face bounding box: " + face.getBoundingBox().flattenToString());
-      Log.v(MANUAL_TESTING_LOG, "face Euler Angle X: " + face.getHeadEulerAngleX());
-      Log.v(MANUAL_TESTING_LOG, "face Euler Angle Y: " + face.getHeadEulerAngleY());
-      Log.v(MANUAL_TESTING_LOG, "face Euler Angle Z: " + face.getHeadEulerAngleZ());
-
-      // All landmarks
-      int[] landMarkTypes =
-          new int[] {
-            FaceLandmark.MOUTH_BOTTOM,
-            FaceLandmark.MOUTH_RIGHT,
-            FaceLandmark.MOUTH_LEFT,
-            FaceLandmark.RIGHT_EYE,
-            FaceLandmark.LEFT_EYE,
-            FaceLandmark.RIGHT_EAR,
-            FaceLandmark.LEFT_EAR,
-            FaceLandmark.RIGHT_CHEEK,
-            FaceLandmark.LEFT_CHEEK,
-            FaceLandmark.NOSE_BASE
-          };
-      String[] landMarkTypesStrings =
-          new String[] {
-            "MOUTH_BOTTOM",
-            "MOUTH_RIGHT",
-            "MOUTH_LEFT",
-            "RIGHT_EYE",
-            "LEFT_EYE",
-            "RIGHT_EAR",
-            "LEFT_EAR",
-            "RIGHT_CHEEK",
-            "LEFT_CHEEK",
-            "NOSE_BASE"
-          };
-      for (int i = 0; i < landMarkTypes.length; i++) {
-        FaceLandmark landmark = face.getLandmark(landMarkTypes[i]);
-        if (landmark == null) {
-          Log.v(
-              MANUAL_TESTING_LOG,
-              "No landmark of type: " + landMarkTypesStrings[i] + " has been detected");
-        } else {
-          PointF landmarkPosition = landmark.getPosition();
-          String landmarkPositionStr =
-              String.format(Locale.US, "x: %f , y: %f", landmarkPosition.x, landmarkPosition.y);
-          Log.v(
-              MANUAL_TESTING_LOG,
-              "Position for face landmark: "
-                  + landMarkTypesStrings[i]
-                  + " is :"
-                  + landmarkPositionStr);
-        }
-      }
-      Log.v(
-          MANUAL_TESTING_LOG,
-          "face left eye open probability: " + face.getLeftEyeOpenProbability());
-      Log.v(
-          MANUAL_TESTING_LOG,
-          "face right eye open probability: " + face.getRightEyeOpenProbability());
-      Log.v(MANUAL_TESTING_LOG, "face smiling probability: " + face.getSmilingProbability());
-      Log.v(MANUAL_TESTING_LOG, "face tracking id: " + face.getTrackingId());
+    int faceCount = faces.size();
+    Log.d(TAG, "faceCount:"+faceCount);
+    if (faceDetectionListener != null) {
+      faceDetectionListener.onFacesDetected(faceCount);
     }
   }
 
@@ -147,10 +101,50 @@ public class FaceDetectorProcessor extends VisionProcessorBase<List<Face>> {
     Log.e(TAG, "Face detection failed " + e);
   }
 
+  public void setValue(String key, String value) {
+    Log.d(TAG, "setValue - String key:"+key+" - String value:"+value);
+    editor.putString(key, value);
+    editor.apply();
+  }
+
+  public void setValue(String key, int value) {
+    Log.d(TAG, "setValue - String key:"+key+" - int value:"+value);
+    editor.putInt(key, value);
+    editor.apply();
+  }
+
+  public void setValue(String key, boolean value) {
+    Log.d(TAG, "setValue - String key:"+key+" - boolean value:"+value);
+    editor.putBoolean(key, value);
+    editor.apply();
+  }
+
+  public String getValue(String key, String defaultValue) {
+    Log.d(TAG, "getValue - String key:"+key+" - String value:"+defaultValue);
+    return sharedPreferencesMain.getString(key, defaultValue);
+  }
+
+  public int getValue(String key, int defaultValue) {
+    Log.d(TAG, "getValue - String key:"+key+" - int value:"+defaultValue);
+    return sharedPreferencesMain.getInt(key, defaultValue);
+  }
+
   public boolean getValue(String key, boolean defaultValue) {
+    Log.d(TAG, "getValue - String key:"+key+" - boolean value:"+defaultValue);
     return sharedPreferencesMain.getBoolean(key, defaultValue);
+  }
+
+  public void removeValue(String key) {
+    Log.d(TAG, "removeValue - String key:"+key);
+    editor.remove(key);
+    editor.apply();
   }
   public interface ImageProcessingListener {
     void onImageProcessed(Bitmap bitmap);
   }
+
+  public interface FaceDetectionListener {
+    void onFacesDetected(int faceCount);
+  }
+
 }
