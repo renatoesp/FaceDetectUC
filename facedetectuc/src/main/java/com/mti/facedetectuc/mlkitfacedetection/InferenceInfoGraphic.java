@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 /** Graphic instance for rendering inference info (latency, FPS, resolution) in an overlay view. */
 public class InferenceInfoGraphic extends GraphicOverlay.Graphic {
 
-  private static final int TEXT_COLOR = Color.WHITE;
+  private static final int TEXT_COLOR = Color.BLACK;
   private static final float TEXT_SIZE = 30.0f;
 
   private final Paint textPaint;

@@ -65,18 +65,12 @@ public class FaceDetectorProcessor extends VisionProcessorBase<List<Face>> {
   protected Task<List<Face>> detectInImage(InputImage image, Bitmap bitmap) {
 
     isFaceReady = getValue("FaceReady",false);
-//    int qtdImages = Integer.parseInt(getValue("qtdImages","4"));
+
     Log.d(TAG, "detectInImage - FaceDetectorProcessor - isFaceReady:"+isFaceReady);
     if (isFaceReady){
       if (imageProcessingListener != null) {
         Log.d(TAG, "detectInImage - FaceDetectorProcessor - imageProcessingListener != null");
-  //      if (qtdImages > 0){
-   //       String name_image = "imagem" + qtdImages;
-   //       int qtdImagesNow = qtdImages - 1;
-  //        String qtdImagesNowStr = String.valueOf(qtdImagesNow);
-   //       setValue("qtdImages", qtdImagesNowStr);
-          imageProcessingListener.onImageProcessed(bitmap);
-   //     }
+        imageProcessingListener.onImageProcessed(bitmap);
 
       }
     }
@@ -86,8 +80,8 @@ public class FaceDetectorProcessor extends VisionProcessorBase<List<Face>> {
   @Override
   protected void onSuccess(@NonNull List<Face> faces, @NonNull GraphicOverlay graphicOverlay) {
 //    for (Face face : faces) {
- //     graphicOverlay.add(new FaceGraphic(graphicOverlay, face,sharedPreferencesMain,animationControllerMain));
- //   }
+//      graphicOverlay.add(new FaceGraphic(graphicOverlay, face,sharedPreferencesMain,animationControllerMain));
+//    }
     int faceCount = faces.size();
     Log.d(TAG, "faceCount:"+faceCount);
     if (faceDetectionListener != null) {

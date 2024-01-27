@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
@@ -75,7 +76,7 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
     private final SharedPreferences.Editor editor;
     private Handler handler = new Handler();
     private long lastSavedTime = 0;
-    private static final long SAVE_INTERVAL = 500; // Intervalo de 0.5 segundo
+    private static final long SAVE_INTERVAL = 5;
     private Bitmap lastBitmap;
     public FaceDetectUC(Context context, Coordinator coordinator, LayoutItemDefinition definition) {
         super(context);
@@ -96,7 +97,8 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
         animationView = findViewById(R.id.lottieAnimationView);
         animationController = new LottieAnimationController(animationView);
 
-        ImageView imageView = findViewById(R.id.frameOverlay);
+        ImageView frameOverlay = findViewById(R.id.frameOverlay);
+        frameOverlay.setVisibility(View.VISIBLE);
 
         startCaptureButton = findViewById(R.id.startCaptureButton);
         startCaptureButton.setOnClickListener(new OnClickListener() {
@@ -134,6 +136,9 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
     }
 
     private void iniciarCaptura(){
+        startCaptureButton.setText("Capturando imagens");
+        startCaptureButton.setBackgroundColor(Color.parseColor("#192F781a"));
+        startCaptureButton.setTextColor(Color.parseColor("#1e1e1e"));
         setValue("FaceReady", true);
     }
     private void toggleCamera() {
@@ -161,6 +166,12 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
                 RC_HANDLE_CAMERA_PERM);
 
     }
+
+    public void changeFrameOverlayImage() {
+        ImageView frameOverlay = findViewById(R.id.frameOverlay);
+        frameOverlay.setImageResource(R.drawable.frameface2);
+    }
+
     @SuppressLint("InlinedApi")
     private void createCameraSource() {
         Log.d(NAME, "createCameraSource");
@@ -177,8 +188,8 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
             @Override
             public void onFacesDetected(int faceCount) {
 
-                if (faceCount > 1) {
-                    Toast.makeText(getContext(), "Somente uma face deve ser capturada", Toast.LENGTH_SHORT).show();
+                if (faceCount > 0) {
+                    changeFrameOverlayImage();
                 }
             }
         });
@@ -187,7 +198,6 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
             @Override
             public void onImageProcessed(Bitmap bitmap) {
                 Log.d(NAME, "FaceDetectUC onImageProcessed");
-
 
                 if (bitmap != null) {
                     long currentTime = System.currentTimeMillis();
@@ -309,6 +319,13 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
             cameraSource.release();
         }
         faceDetectorProcessor.stop();
+        editor.clear();
+        editor.apply();
+        startCaptureButton.setText("Iniciar Captura");
+        startCaptureButton.setBackgroundColor(Color.parseColor("#192F78"));
+        startCaptureButton.setTextColor(Color.parseColor("#FFFFFF"));
+        ImageView frameOverlay = findViewById(R.id.frameOverlay);
+        frameOverlay.setImageResource(R.drawable.frameface);
     }
 
     private String getDefinitionProperty(String propertyName) {

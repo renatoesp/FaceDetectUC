@@ -6,16 +6,6 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
-  <ImageView
-      android:id="@+id/frameOverlay"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:src="@drawable/frame_face"
-      app:layout_constraintTop_toTopOf="@id/preview_view"
-      app:layout_constraintBottom_toBottomOf="@id/preview_view"
-      app:layout_constraintStart_toStartOf="@id/preview_view"
-      app:layout_constraintEnd_toEndOf="@id/preview_view"/>
-
 
   <com.mti.facedetectuc.mlkitfacedetection.CameraSourcePreview
       android:id="@+id/preview_view"
@@ -33,15 +23,16 @@
       app:layout_constraintTop_toTopOf="@id/preview_view"
       app:layout_constraintBottom_toBottomOf="@id/preview_view"/>
 
-  <com.airbnb.lottie.LottieAnimationView
-      android:id="@+id/lottieAnimationView"
-      android:layout_width="500dp"
-      android:layout_height="500dp"
-      app:lottie_autoPlay="true"
-      app:lottie_loop="true"
+  <ImageView
+      android:id="@+id/frameOverlay"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
+      android:src="@drawable/frameface"
+      app:layout_constraintTop_toTopOf="parent"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintEnd_toEndOf="parent" />
+      app:layout_constraintEnd_toEndOf="parent"
+      android:scaleType="fitXY"/>
 
   <Button
       android:id="@+id/startCaptureButton"
@@ -54,8 +45,23 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
+      android:minWidth="48dp"
+      android:minHeight="48dp"
+      android:padding="12dp"
       android:layout_marginBottom="20dp"/>
 
+  <com.airbnb.lottie.LottieAnimationView
+      android:id="@+id/lottieAnimationView"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:lottie_autoPlay="true"
+      app:lottie_loop="true"
+      app:lottie_fileName="capture-photos.json"
+      app:layout_constraintBottom_toTopOf="@id/startCaptureButton"
+      app:layout_constraintStart_toStartOf="@id/startCaptureButton"
+      app:layout_constraintEnd_toEndOf="@id/startCaptureButton"
+      android:visibility="gone"
+      />
 
   <ImageButton
       android:id="@+id/toggleCamera"
@@ -66,6 +72,7 @@
       app:layout_constraintTop_toTopOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       android:layout_marginTop="16dp"
+      android:contentDescription="@string/toggle_camera_description"
       android:layout_marginEnd="16dp"/>
 
 
