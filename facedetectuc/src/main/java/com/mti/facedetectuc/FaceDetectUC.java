@@ -19,13 +19,11 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import com.airbnb.lottie.LottieAnimationView;
 import com.genexus.android.core.base.controls.IGxControlRuntime;
 import com.genexus.android.core.base.metadata.ActionDefinition;
 import com.genexus.android.core.base.metadata.ActionParameter;
@@ -70,13 +68,11 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
     private final CameraSourcePreview preview;
     private final GraphicOverlay graphicOverlay;
     private final SharedPreferences sharedPreferences;
-    private final LottieAnimationView animationView;
-    private final LottieAnimationController animationController;
     private Button startCaptureButton;
     private final SharedPreferences.Editor editor;
     private Handler handler = new Handler();
     private long lastSavedTime = 0;
-    private static final long SAVE_INTERVAL = 5;
+    private static final long SAVE_INTERVAL = 500;
     private Bitmap lastBitmap;
     public FaceDetectUC(Context context, Coordinator coordinator, LayoutItemDefinition definition) {
         super(context);
@@ -93,9 +89,6 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
         editor = sharedPreferences.edit();
         editor.clear();
         editor.apply();
-
-        animationView = findViewById(R.id.lottieAnimationView);
-        animationController = new LottieAnimationController(animationView);
 
         ImageView frameOverlay = findViewById(R.id.frameOverlay);
         frameOverlay.setVisibility(View.VISIBLE);
@@ -182,7 +175,7 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
         }
         Log.i(NAME, "Using Face Detector Processor");
 
-        faceDetectorProcessor = new FaceDetectorProcessor(mContext, sharedPreferences, animationController);
+        faceDetectorProcessor = new FaceDetectorProcessor(mContext, sharedPreferences);
 
         faceDetectorProcessor.setFaceDetectionListener(new FaceDetectorProcessor.FaceDetectionListener() {
             @Override

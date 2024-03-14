@@ -50,19 +50,6 @@
       android:padding="12dp"
       android:layout_marginBottom="20dp"/>
 
-  <com.airbnb.lottie.LottieAnimationView
-      android:id="@+id/lottieAnimationView"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      app:lottie_autoPlay="true"
-      app:lottie_loop="true"
-      app:lottie_fileName="capture-photos.json"
-      app:layout_constraintBottom_toTopOf="@id/startCaptureButton"
-      app:layout_constraintStart_toStartOf="@id/startCaptureButton"
-      app:layout_constraintEnd_toEndOf="@id/startCaptureButton"
-      android:visibility="gone"
-      />
-
   <ImageButton
       android:id="@+id/toggleCamera"
       android:layout_width="wrap_content"

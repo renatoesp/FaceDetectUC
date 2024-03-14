@@ -255,30 +255,9 @@ public class CameraSource {
 
     previewSize = sizePair.preview;
     Log.v(TAG, "Camera preview size: " + previewSize);
-/*
-    int[] previewFpsRange = selectPreviewFpsRange(camera, REQUESTED_FPS);
-    if (previewFpsRange == null) {
-      throw new IOException("Could not find suitable preview frames per second range.");
-    }
-*/
     Parameters parameters = camera.getParameters();
-
-    /*
-    Size pictureSize = sizePair.picture;
-    if (pictureSize != null) {
-      Log.v(TAG, "Camera picture size: " + pictureSize);
-      parameters.setPictureSize(pictureSize.getWidth(), pictureSize.getHeight());
-    }
-*/
     parameters.setPreviewSize(previewSize.getWidth(), previewSize.getHeight());
     Log.i(TAG, "parameters:"+parameters.toString());
-/*
-    parameters.setPreviewFpsRange(
-        previewFpsRange[Parameters.PREVIEW_FPS_MIN_INDEX],
-        previewFpsRange[Parameters.PREVIEW_FPS_MAX_INDEX]);
-    // Use YV12 so that we can exercise YV12->NV21 auto-conversion logic for OCR detection
-    parameters.setPreviewFormat(IMAGE_FORMAT);
-*/
     setRotation(camera, parameters, requestedCameraId);
 
     if (REQUESTED_AUTO_FOCUS) {
@@ -427,40 +406,6 @@ public class CameraSource {
     }
 
     return validPreviewSizes;
-  }
-
-  /**
-   * Selects the most suitable preview frames per second range, given the desired frames per second.
-   *
-   * @param camera the camera to select a frames per second range from
-   * @param desiredPreviewFps the desired frames per second for the camera preview frames
-   * @return the selected preview frames per second range
-   */
-  @SuppressLint("InlinedApi")
-  private static int[] selectPreviewFpsRange(Camera camera, float desiredPreviewFps) {
-    // The camera API uses integers scaled by a factor of 1000 instead of floating-point frame
-    // rates.
-    int desiredPreviewFpsScaled = (int) (desiredPreviewFps * 1000.0f);
-
-    // Selects a range with whose upper bound is as close as possible to the desired fps while its
-    // lower bound is as small as possible to properly expose frames in low light conditions. Note
-    // that this may select a range that the desired value is outside of. For example, if the
-    // desired frame rate is 30.5, the range (30, 30) is probably more desirable than (30, 40).
-    int[] selectedFpsRange = null;
-    int minUpperBoundDiff = Integer.MAX_VALUE;
-    int minLowerBound = Integer.MAX_VALUE;
-    List<int[]> previewFpsRangeList = camera.getParameters().getSupportedPreviewFpsRange();
-    for (int[] range : previewFpsRangeList) {
-      int upperBoundDiff =
-          Math.abs(desiredPreviewFpsScaled - range[Parameters.PREVIEW_FPS_MAX_INDEX]);
-      int lowerBound = range[Parameters.PREVIEW_FPS_MIN_INDEX];
-      if (upperBoundDiff <= minUpperBoundDiff && lowerBound <= minLowerBound) {
-        selectedFpsRange = range;
-        minUpperBoundDiff = upperBoundDiff;
-        minLowerBound = lowerBound;
-      }
-    }
-    return selectedFpsRange;
   }
 
   /**

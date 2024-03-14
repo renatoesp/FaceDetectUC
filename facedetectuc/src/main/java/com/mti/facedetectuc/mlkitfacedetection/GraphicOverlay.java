@@ -82,27 +82,9 @@ public class GraphicOverlay extends View {
      */
     public abstract void draw(Canvas canvas);
 
-    protected void drawRect(
-        Canvas canvas, float left, float top, float right, float bottom, Paint paint) {
-      canvas.drawRect(left, top, right, bottom, paint);
-    }
-
-    protected void drawText(Canvas canvas, String text, float x, float y, Paint paint) {
-      canvas.drawText(text, x, y, paint);
-    }
-
     /** Adjusts the supplied value from the image scale to the view scale. */
     public float scale(float imagePixel) {
       return imagePixel * overlay.scaleFactor;
-    }
-
-    /** Returns the application context of the app. */
-    public Context getApplicationContext() {
-      return overlay.getContext().getApplicationContext();
-    }
-
-    public boolean isImageFlipped() {
-      return overlay.isImageFlipped;
     }
 
     /**

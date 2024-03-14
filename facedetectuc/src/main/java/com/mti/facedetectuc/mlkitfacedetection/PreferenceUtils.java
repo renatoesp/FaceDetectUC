@@ -13,17 +13,6 @@ import com.mti.facedetectuc.mlkitfacedetection.CameraSource.SizePair;
 /** Utility class to retrieve shared preferences. */
 public class PreferenceUtils {
 
-  @Nullable
-  public static SizePair getCameraPreviewSizePair(Context context, int cameraId) {
-    try {
-      return new SizePair(
-          Size.parseSize(CameraSourceHelper.getDefaultRequestedCameraPreviewWidth(context)),
-          Size.parseSize(CameraSourceHelper.getDefaultRequestedCameraPreviewHeight(context)));
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
   public static FaceDetectorOptions getFaceDetectorOptions(Context context) {
     int landmarkMode = FaceDetectorOptions.LANDMARK_MODE_NONE;
     int contourMode = FaceDetectorOptions.CONTOUR_MODE_NONE;

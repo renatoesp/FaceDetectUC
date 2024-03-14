@@ -15,7 +15,6 @@ import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 import com.google.mlkit.vision.face.FaceLandmark;
-import com.mti.facedetectuc.LottieAnimationController;
 import com.mti.facedetectuc.FaceDetectUC;
 import java.util.List;
 import java.util.Locale;
@@ -28,7 +27,6 @@ public class FaceDetectorProcessor extends VisionProcessorBase<List<Face>> {
   private final FaceDetector detector;
   private final SharedPreferences sharedPreferencesMain;
   private final SharedPreferences.Editor editor;
-  private final LottieAnimationController animationControllerMain;
   private boolean isFaceReady;
   private ImageProcessingListener imageProcessingListener;
 
@@ -36,12 +34,11 @@ public class FaceDetectorProcessor extends VisionProcessorBase<List<Face>> {
 
 
 
-  public FaceDetectorProcessor(Context context, SharedPreferences sharedPreferences, LottieAnimationController animationController) {
+  public FaceDetectorProcessor(Context context, SharedPreferences sharedPreferences) {
     super(context);
 
     sharedPreferencesMain = sharedPreferences;
     editor = sharedPreferencesMain.edit();
-    animationControllerMain = animationController;
     FaceDetectorOptions faceDetectorOptions = PreferenceUtils.getFaceDetectorOptions(context);
     Log.v(MANUAL_TESTING_LOG, "Face detector options: " + faceDetectorOptions);
     detector = FaceDetection.getClient(faceDetectorOptions);
@@ -79,9 +76,6 @@ public class FaceDetectorProcessor extends VisionProcessorBase<List<Face>> {
   @androidx.camera.core.ExperimentalGetImage
   @Override
   protected void onSuccess(@NonNull List<Face> faces, @NonNull GraphicOverlay graphicOverlay) {
-//    for (Face face : faces) {
-//      graphicOverlay.add(new FaceGraphic(graphicOverlay, face,sharedPreferencesMain,animationControllerMain));
-//    }
     int faceCount = faces.size();
     Log.d(TAG, "faceCount:"+faceCount);
     if (faceDetectionListener != null) {
