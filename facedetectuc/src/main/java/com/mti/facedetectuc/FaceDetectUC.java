@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,10 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import androidx.annotation.NonNull;
-import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureException;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import com.genexus.android.core.base.controls.IGxControlRuntime;
 import com.genexus.android.core.base.metadata.ActionDefinition;
 import com.genexus.android.core.base.metadata.ActionParameter;
@@ -46,10 +42,9 @@ import com.mti.facedetectuc.mlkitfacedetection.FaceDetectorProcessor;
 @androidx.camera.core.ExperimentalGetImage
 public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRuntime {
     final static String NAME = "FaceDetectUC";
-    private final static String EVENT_ON_TAP = "OnTap";
+    private final static String EVENT_RETURN_IMAGE = "ReturnImage";
     private static final String METHOD_START_CAMERA = "startcamera";
     private static final String METHOD_STOP_CAMERA = "stopcamera";
-    private static final String METHOD_TAKE_PHOTO = "takephoto";
     private static final String CONTROL_ID = "@" + NAME;
     private String mName;
 
@@ -60,7 +55,6 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
     private final Context mContext;
     private final Coordinator mCoordinator;
     private final LayoutItemDefinition mLayoutDefinition;
-    private ImageCapture imageCapture;
     private static final String FACE_DETECTION = "FaceDetectionPrefs";
     private static final String TAG = "LivePreviewActivity";
     private FaceDetectorProcessor faceDetectorProcessor;
@@ -68,9 +62,9 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
     private final CameraSourcePreview preview;
     private final GraphicOverlay graphicOverlay;
     private final SharedPreferences sharedPreferences;
-    private Button startCaptureButton;
+    private final Button startCaptureButton;
     private final SharedPreferences.Editor editor;
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
     private long lastSavedTime = 0;
     private static final long SAVE_INTERVAL = 500;
     private Bitmap lastBitmap;
@@ -223,7 +217,7 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
         if (savedImageFile != null) {
             String imagePath = savedImageFile.getAbsolutePath();
             Log.d(NAME, "FaceDetectUC imagePath:" + imagePath);
-            runOnTapEvent(imagePath);
+            ReturnImage(imagePath);
         }
     }
 
@@ -232,7 +226,6 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
         try {
             String  uniqueID = UUID.randomUUID().toString();
             String namefinalImage = "img_" + uniqueID + ".png";
-            ContextWrapper cw = new ContextWrapper(mactivity.getApplicationContext());
             File savedImageFile = new File(directory,namefinalImage );
 
             fos = new FileOutputStream(savedImageFile);
@@ -269,41 +262,17 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
             }
         }
     }
-    public void takePhoto() {
-        Log.d(NAME, "TakePhoto()");
-        String  uniqueID = UUID.randomUUID().toString();
-        ContextWrapper cw = new ContextWrapper(mactivity.getApplicationContext());
-        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
-        File file = new File(directory, uniqueID + ".jpg");
 
-        ImageCapture.OutputFileOptions outputFileOptions =
-                new ImageCapture.OutputFileOptions.Builder(file).build();
-        imageCapture.takePicture(outputFileOptions, ContextCompat.getMainExecutor(mContext),
-                new ImageCapture.OnImageSavedCallback() {
-                    @Override
-                    public void onImageSaved(ImageCapture.OutputFileResults outputFileResults) {
-                        Uri savedUri = outputFileResults.getSavedUri();
-                        Log.d(NAME, "Photo capture succeeded: " + savedUri);
-                        runOnTapEvent(savedUri.toString());
-                    }
-
-                    @Override
-                    public void onError(@NonNull ImageCaptureException exception) {
-                        Log.e(NAME, "Erro ao capturar a imagem: " + exception.getMessage());
-                    }
-                });
-    }
-
-    public void runOnTapEvent(String imagePath) {
+    public void ReturnImage(String imagePath) {
         Log.d(NAME,"runOnTapEvent - imagePath:"+imagePath);
-        ActionDefinition actionDef = mCoordinator.getControlEventHandler(this, EVENT_ON_TAP);
+        ActionDefinition actionDef = mCoordinator.getControlEventHandler(this, EVENT_RETURN_IMAGE);
         for (ActionParameter param : actionDef.getEventParameters()) {
             String paramName = param.getValueDefinition().getName();
             Log.d(NAME,"paramName: "+paramName);
             mCoordinator.setValue(paramName, imagePath);
         }
 
-        mCoordinator.runControlEvent(this, EVENT_ON_TAP);
+        mCoordinator.runControlEvent(this, EVENT_RETURN_IMAGE);
     }
 
     public void stopCamera() {
@@ -368,26 +337,12 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
         editor.putBoolean(key, value);
         editor.apply();
     }
-    public void setValue(String key, String value) {
-        editor.putString(key, value);
-        editor.apply();
-    }
     @Override
     public Expression.Value callMethod(String name, List<Expression.Value> parameters) {
         if (METHOD_START_CAMERA.equals(name)) {
             Log.d(NAME, "METHOD_START_CAMERA");
-            // read parameters from the intent used to launch the activity.
-//            int qtdImages = Integer.parseInt(getDefinitionProperty("qtdImages"));
-            String qtdImagesString = getDefinitionProperty("qtdImages");
-            setValue("qtdImages", qtdImagesString);
-            Log.d(NAME, "qtdImages:"+qtdImagesString);
-
             createCameraSource();
             startCameraSource();
-        }
-        if (METHOD_TAKE_PHOTO.equals(name)) {
-            Log.d(NAME, "METHOD_TAKE_PHOTO");
-//			takePhoto();
         }
         if (METHOD_STOP_CAMERA.equals(name)) {
             Log.d(NAME, "METHOD_STOP_CAMERA");
