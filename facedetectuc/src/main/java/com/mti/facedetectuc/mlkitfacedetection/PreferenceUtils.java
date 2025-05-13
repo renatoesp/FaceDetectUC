@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import com.google.android.gms.common.images.Size;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
-import com.mti.R;
+import com.mti.facedetectuc.R;
 import com.mti.facedetectuc.mlkitfacedetection.CameraSource.SizePair;
 
 /** Utility class to retrieve shared preferences. */

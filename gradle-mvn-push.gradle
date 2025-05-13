@@ -1,22 +1,28 @@
+apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
+afterEvaluate {
+    publishing {
+        publications {
+            mavenAar(MavenPublication) {
+                groupId = 'com.mti'
+                artifactId = 'facedetectuc'
+                version = '2.0.0'
 
-publishing {
-    publications {
-        mavenAar(MavenPublication) {
-            groupId = 'com.mti'
-            artifactId = 'facedetectuc'
-            version = '2.0.0'
+                artifact("$buildDir/outputs/aar/facedetectuc-release.aar")
 
-            afterEvaluate {
-                artifact(bundleReleaseAar)
+                pom {
+                    name = 'FaceDetectUC'
+                    description = 'UserControl Android para reconhecimento facial'
+                    url = 'https://github.com/renatoesp/FaceDetectUC'
+                }
             }
         }
-    }
 
-    repositories {
-        maven {
-            url = uri("file:///C:/Program Files (x86)/GeneXus/GeneXus18/Android/m2Repository")
+        repositories {
+            maven {
+                url = uri("file:///C:/Program Files (x86)/GeneXus/GeneXus18/Android/m2Repository")
+            }
         }
     }
 }

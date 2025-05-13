@@ -31,5 +31,10 @@
       <option name="name" value="Google" />
       <option name="url" value="https://dl.google.com/dl/android/maven2/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven2" />
+      <option name="name" value="maven2" />
+      <option name="url" value="file:/$PROJECT_DIR$/../../../../Program%20Files%20(x86)/GeneXus/GeneXus18/Android/m2Repository/" />
+    </remote-repository>
   </component>
 </project>

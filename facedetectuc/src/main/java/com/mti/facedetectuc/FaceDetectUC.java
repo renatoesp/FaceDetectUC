@@ -32,7 +32,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import com.mti.R;
+import com.mti.facedetectuc.R;
 import com.mti.facedetectuc.mlkitfacedetection.GraphicOverlay;
 import com.mti.facedetectuc.mlkitfacedetection.CameraSourcePreview;
 import com.mti.facedetectuc.mlkitfacedetection.CameraSource;
