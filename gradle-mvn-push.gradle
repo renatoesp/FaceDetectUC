@@ -1,22 +1,22 @@
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 
-project.version = '1.0'
-project.group = 'com.mti'
+publishing {
+    publications {
+        mavenAar(MavenPublication) {
+            groupId = 'com.mti'
+            artifactId = 'facedetectuc'
+            version = '2.0.0'
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: "file:///C:/Program%20Files%20(x86)/GeneXus/GeneXus18/Android/m2Repository")
+            afterEvaluate {
+                artifact(bundleReleaseAar)
+            }
         }
     }
 
-    task androidSourcesJar(type: Jar) {
-        classifier = 'sources'
-        from android.sourceSets.main.java.sourceFiles
-    }
-
-    artifacts {
-        archives androidSourcesJar
+    repositories {
+        maven {
+            url = uri("file:///C:/Program Files (x86)/GeneXus/GeneXus18/Android/m2Repository")
+        }
     }
 }
