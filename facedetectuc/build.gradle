@@ -30,7 +30,7 @@ repositories {
     google()
     mavenCentral()
     maven { url "https://jitpack.io" }
-    maven { url "file:///C:/Program Files (x86)/GeneXus/GeneXus17/Android/m2Repository" }
+    maven { url 'file:///C:/Program%20Files%20(x86)/GeneXus/GeneXus18/Android/m2Repository' }
 }
 
 dependencies {
