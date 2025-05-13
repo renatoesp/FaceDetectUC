@@ -63,10 +63,10 @@ public class FaceDetectorProcessor extends VisionProcessorBase<List<Face>> {
 
     isFaceReady = getValue("FaceReady",false);
 
-    Log.d(TAG, "detectInImage - FaceDetectorProcessor - isFaceReady:"+isFaceReady);
+    //Log.d(TAG, "detectInImage - FaceDetectorProcessor - isFaceReady:"+isFaceReady);
     if (isFaceReady){
       if (imageProcessingListener != null) {
-        Log.d(TAG, "detectInImage - FaceDetectorProcessor - imageProcessingListener != null");
+        //Log.d(TAG, "detectInImage - FaceDetectorProcessor - imageProcessingListener != null");
         imageProcessingListener.onImageProcessed(bitmap);
 
       }
@@ -77,7 +77,7 @@ public class FaceDetectorProcessor extends VisionProcessorBase<List<Face>> {
   @Override
   protected void onSuccess(@NonNull List<Face> faces, @NonNull GraphicOverlay graphicOverlay) {
     int faceCount = faces.size();
-    Log.d(TAG, "faceCount:"+faceCount);
+ //   Log.d(TAG, "faceCount:"+faceCount);
     if (faceDetectionListener != null) {
       faceDetectionListener.onFacesDetected(faceCount);
     }
@@ -89,35 +89,35 @@ public class FaceDetectorProcessor extends VisionProcessorBase<List<Face>> {
   }
 
   public void setValue(String key, String value) {
-    Log.d(TAG, "setValue - String key:"+key+" - String value:"+value);
+ //   Log.d(TAG, "setValue - String key:"+key+" - String value:"+value);
     editor.putString(key, value);
     editor.apply();
   }
 
   public void setValue(String key, int value) {
-    Log.d(TAG, "setValue - String key:"+key+" - int value:"+value);
+//    Log.d(TAG, "setValue - String key:"+key+" - int value:"+value);
     editor.putInt(key, value);
     editor.apply();
   }
 
   public void setValue(String key, boolean value) {
-    Log.d(TAG, "setValue - String key:"+key+" - boolean value:"+value);
+//    Log.d(TAG, "setValue - String key:"+key+" - boolean value:"+value);
     editor.putBoolean(key, value);
     editor.apply();
   }
 
   public String getValue(String key, String defaultValue) {
-    Log.d(TAG, "getValue - String key:"+key+" - String value:"+defaultValue);
+ //   Log.d(TAG, "getValue - String key:"+key+" - String value:"+defaultValue);
     return sharedPreferencesMain.getString(key, defaultValue);
   }
 
   public int getValue(String key, int defaultValue) {
-    Log.d(TAG, "getValue - String key:"+key+" - int value:"+defaultValue);
+ //   Log.d(TAG, "getValue - String key:"+key+" - int value:"+defaultValue);
     return sharedPreferencesMain.getInt(key, defaultValue);
   }
 
   public boolean getValue(String key, boolean defaultValue) {
-    Log.d(TAG, "getValue - String key:"+key+" - boolean value:"+defaultValue);
+//    Log.d(TAG, "getValue - String key:"+key+" - boolean value:"+defaultValue);
     return sharedPreferencesMain.getBoolean(key, defaultValue);
   }
 

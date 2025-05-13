@@ -68,6 +68,7 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
     private long lastSavedTime = 0;
     private static final long SAVE_INTERVAL = 500;
     private Bitmap lastBitmap;
+
     public FaceDetectUC(Context context, Coordinator coordinator, LayoutItemDefinition definition) {
         super(context);
         mCoordinator = coordinator;
@@ -96,6 +97,7 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
         });
 
         ImageButton toggleCameraButton = findViewById(R.id.toggleCamera);
+
         toggleCameraButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,6 +138,7 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
             startCameraSource();
         }
     }
+
     private void requestCameraPermission() {
         Log.w(NAME, "Camera permission is not granted. Requesting permission");
 
@@ -213,6 +216,7 @@ public class FaceDetectUC extends FrameLayout implements IGxEdit, IGxControlRunt
 
     private void saveImage(Bitmap bitmap) {
         File appDirectory = mContext.getApplicationContext().getFilesDir();
+ //       Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 600, 800, true);
         File savedImageFile = saveImageFromBitmap(bitmap, appDirectory);
         if (savedImageFile != null) {
             String imagePath = savedImageFile.getAbsolutePath();

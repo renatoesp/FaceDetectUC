@@ -36,8 +36,8 @@ public class CameraSource {
 
   public static final int IMAGE_FORMAT = ImageFormat.NV21;
   // Valores padrão para largura e altura do preview
-  public static final int DEFAULT_REQUESTED_CAMERA_PREVIEW_WIDTH = 480;
-  public static final int DEFAULT_REQUESTED_CAMERA_PREVIEW_HEIGHT = 640;
+  public static final int DEFAULT_REQUESTED_CAMERA_PREVIEW_WIDTH = 800;
+  public static final int DEFAULT_REQUESTED_CAMERA_PREVIEW_HEIGHT = 600;
   private static final String TAG = "FaceDetectUC";
 
   /**
@@ -270,6 +270,10 @@ public class CameraSource {
       }
     }
 
+    if (parameters.getFlashMode() != null) {
+      parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+    }
+
     camera.setParameters(parameters);
 
     // Four frame buffers are needed for working with the camera:
@@ -333,14 +337,25 @@ public class CameraSource {
     int minDiff = Integer.MAX_VALUE;
     for (SizePair sizePair : validPreviewSizes) {
       Size size = sizePair.preview;
+      int Width = size.getWidth();
+      int Height = size.getHeight();
+      Log.w(TAG, "size.getWidth:"+Width+",size.getHeight:"+Height);
+
+      if (Width == 800 || Height == 600) {
+        selectedPair = sizePair;
+        break;
+      }
+/*
       int diff =
-          Math.abs(size.getWidth() - desiredWidth) + Math.abs(size.getHeight() - desiredHeight);
+          Math.abs(Width - desiredWidth) + Math.abs(Height - desiredHeight);
       if (diff < minDiff) {
         selectedPair = sizePair;
         minDiff = diff;
+        Log.w(TAG, "Ultimo sizePair selecionado - size.getWidth:"+Width+",size.getHeight:"+Height);
       }
-    }
+*/
 
+    }
     return selectedPair;
   }
 
