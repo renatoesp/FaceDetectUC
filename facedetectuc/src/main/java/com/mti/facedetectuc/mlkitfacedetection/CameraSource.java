@@ -15,7 +15,7 @@ import android.view.SurfaceHolder;
 import android.view.WindowManager;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
-import com.google.android.gms.common.images.Size;
+import android.util.Size;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
